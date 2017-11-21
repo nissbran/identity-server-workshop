@@ -6,7 +6,7 @@ In this exercise we are going to secure the transaction api. The requests are co
 
 The first we have to do is to setup IdentityServer4. In the workshop solution you will find a prepared ASP.NET Core 2.0 project (Bank.Cards.IdentityServer). This is the part of the application where most of the work will be done.
 
-### Step 1: Add the IdentityServer4 nuget package
+### Step 1
 
 To use IdentityServer4 we have to add the IdentityServer4 nuget package to the project using your favorite nuget install method. Here we have the dotnet command to add the package: 
 
@@ -14,7 +14,7 @@ To use IdentityServer4 we have to add the IdentityServer4 nuget package to the p
 dotnet add package IdentityServer4
 ```
 
-### Step 2: Add the services to run IdentityServer4
+### Step 2
 
 To get IdentityServer4 up and running we must register its services to the ServiceCollection in ASP.NET Core 2.0.
 This is done by using the supplied ServiceCollection extension:
@@ -32,7 +32,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
     app.UseIdentityServer();
 }
 ```
-### Step 3: Configure clients and api resources
+### Step 3
 
 If you try to run the application now, you will get an exception:
 ```
@@ -50,7 +50,7 @@ public void ConfigureServices(IServiceCollection services)
 ```
 We also added an InMemory store for your api resources. An api resource is a specification for one of your applications that you want the clients to access. It translates directly to scope. 
 
-### Step 4: Test it!
+### Step 4
 
 Now we have configured an empty instance of IdentityServer4. To verify that it works, start the project and navigate to:
 http://localhost:5000/.well-known/openid-configuration
@@ -59,9 +59,9 @@ This is the discovery endpoint for IdentityServer. The discovery endpoint can be
 
 ## Exercise 1.2: Configure IdentityServer4 to accept client credentials
 
-Now we are going to configure the our identity server to accept the clients with client credentials.
+Now we are going to configure the our identity server to accept clients with client credentials.
 
-### Step 1: Update the identity server configuration
+### Step 1
 
 To be able to connect to the transaction api with client credentials, we need to:
 * Add an Api Resource for the transaction api.
@@ -94,9 +94,11 @@ services
     });
 ```
 
+### Step 2
+
 Compile and start the identity server.
 
-### Step 2: Verify the configuration
+### Step 3
 
 To test the configuration we are going to request an access token from the identity server. 
 
@@ -149,8 +151,87 @@ The access token is a JWT(Json Web Token) token, that consists of 3 parts sepera
 
 If you want to decoded your own tokens, you can go to https://jwt.io/ to decode it.
 
-## Exercise 1.3: Modify Transaction Api use access token authentication
+## Exercise 1.3: Modify the Transaction Api use access token authentication
 
+In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, IdentityServer4.AccessTokenValidation. It is also possible to use the regular ASP.NET Core 2.0 Microsoft.AspNetCore.Authentication.JwtBearer package. The difference between them is that IdentityServer4.AccessTokenValidation exposes more options and the api surface aligns more with the tokens that IdentityServer4 generates. The IdentityServer4.AccessTokenValidation even builds on Microsofts package.
 
+### Step 1
+
+Install the IdentityServer4.AccessTokenValidation nuget package in the Bank.Cards.Transactional.Api project
+
+```
+dotnet add package IdentityServer4.AccessTokenValidation
+```
+
+### Step2 
+
+Configure the api to accept tokens form our identity server. Add the following code in ConfigureServices in Startup.cs: 
+
+```C#
+...
+services.AddAuthentication("Bearer")
+        .AddIdentityServerAuthentication(options =>
+        {
+            options.Authority = "http://localhost:5000";
+            options.RequireHttpsMetadata = false;
+            options.ApiName = "cardtransactionapi";
+        });
+...
+``` 
+
+### Step3
+
+Add authentication to the pipeline:
+```C#
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+
+    app.UseAuthentication();
+
+    app.UseMvc();
+}
+```
+
+It is important that the `app.UseAuthentication();` comes before the `app.UseMvc();`. It is in the `app.UseAuthentication();` part of the pipeline that the token is validated and transformed into a UserPrincipal.
+
+### Step4
+
+Now we need to implement authorization for Api. To do that we add the `[Authorize]` attribute to our CardPurchaseController.
+```C#
+...
+    [Route("cards")]
+    [Authorize]
+    public class CardPurchaseController : Controller
+    {
+        private readonly ICardDomainRepository _cardDomainRepository;
+        private readonly PanHashService _panHashService;
+...
+```
+
+### Step5
+
+Now the Purchase endpoint is secure and you now needs a valid access token to access it. To do that we need to include the access token in each call to the endpoint:
+```HTTP
+POST /cards/purchase HTTP/1.1
+Host: localhost:5002
+Content-Type: application/json
+Authorization: Bearer ---access_token here---
+
+{
+	"pan": "your pan",
+	"amount": 20
+}
+```
+
+If you have run the setup part of the workshop and have created a card, you should now get a 200 OK with the card balance:
+```JSON
+{
+    "balance": -80
+}
+```
 
 
