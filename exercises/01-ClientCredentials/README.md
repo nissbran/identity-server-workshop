@@ -2,7 +2,7 @@
 
 In this exercise we are going to secure the transaction api. The requests are coming from a cardterminal client, which means that no user is involved. The client credentials flow is best suited for this purpose. (https://www.oauth.com/oauth2-servers/access-tokens/client-credentials/)
 
-## Exercise 1.1: Configure IdentityServer4
+## Exercise 1.1: Setup IdentityServer4
 
 The first we have to do is to setup IdentityServer4. In the workshop solution you will find a prepared ASP.NET Core 2.0 project (Bank.Cards.IdentityServer). This is the part of the application where most of the work will be done.
 
@@ -48,7 +48,7 @@ public void ConfigureServices(IServiceCollection services)
             .AddInMemoryApiResources(Enumerable.Empty<ApiResource>());
 }
 ```
-We also added an InMemory store for your api resources. An api resource is a specification for one of your applications that you want the clients to access.
+We also added an InMemory store for your api resources. An api resource is a specification for one of your applications that you want the clients to access. It translates directly to scope. 
 
 ### Step 4: Test it!
 
@@ -59,8 +59,16 @@ This is the discovery endpoint for IdentityServer. The discovery endpoint can be
 
 ## Exercise 1.2: Configure IdentityServer4 to accept client credentials
 
-The first we have to do is to secure the transaction api. 
+Now we are going to configure the our identity server to accept the clients with client credentials.
 
+### Step 1: Update the identity server configuration
+
+To be able to connect to the transaction api with client credentials, we need to:
+* Add an Api Resource for the transaction api.
+* Add an "card terminal" client with a client secret that has access to the Api Resource. We also limit the client to only use client credentials grant type.
+* Add an AddDeveloperSigningCredential() configuration. This is only used during development and generates an RSA key file in your project. This key is used to sign the access tokens that IdentityServer returns. For a production setup this must be replaced with a valid RSA certificate.
+
+Replace the service configuration for identity server with this:
 ```C#
 services
     .AddIdentityServer()
@@ -86,6 +94,63 @@ services
     });
 ```
 
-### 
+Compile and start the identity server.
+
+### Step 2: Verify the configuration
+
+To test the configuration we are going to request an access token from the identity server. 
+
+```HTTP
+POST /connect/token HTTP/1.1
+Host: localhost:5000
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id=cardterminal1&client_secret=secret1
+```
+
+You create the request yourself or use the "Get transaction api client credentials token" request in the postman collection supplied with the workshop(link).
+
+The response should look similar to this:
+
+```JSON
+{
+    "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFjMWFmYzU2MmI1Y2M4NTc4MDdhYmUzMmI0MGNiMzczIiwidHlwIjoiSldUIn0.eyJuYmYiOjE1MTEyNTk2NzIsImV4cCI6MTUxMTI2MzI3MiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6NTAwMC9yZXNvdXJjZXMiLCJjYXJkdHJhbnNhY3Rpb25hcGkiXSwiY2xpZW50X2lkIjoiY2FyZHRlcm1pbmFsMSIsInNjb3BlIjpbImNhcmR0cmFuc2FjdGlvbmFwaSJdfQ.XXXXXX_JwsSignature_XXXXXX",
+    "expires_in": 3600,
+    "token_type": "Bearer"
+}
+```
+
+The access token is a JWT(Json Web Token) token, that consists of 3 parts seperated by an '.':
+* The first is the base64encoded header that contains the metadata for the signing algorithm and the token type.. Decoded it looks like this: 
+```JSON
+{
+    "alg":"RS256",
+    "kid":"1c1afc562b5cc857807abe32b40cb373",
+    "typ":"JWT"
+}
+```
+* The second is the base64encoded payload that contains all the required information about the client or user. Decoded it looks like this: 
+```JSON
+{
+  "nbf": 1511259672,
+  "exp": 1511263272,
+  "iss": "http://localhost:5000",
+  "aud": [
+    "http://localhost:5000/resources",
+    "cardtransactionapi"
+  ],
+  "client_id": "cardterminal1",
+  "scope": [
+    "cardtransactionapi"
+  ]
+}
+```
+* The third and last is the signature. It is used to verify that the payload of the token is correct and that it orginates from the correct server.
+
+If you want to decoded your own tokens, you can go to https://jwt.io/ to decode it.
+
+## Exercise 1.3: Modify Transaction Api use access token authentication
+
+
 
 
