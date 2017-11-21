@@ -123,7 +123,7 @@ The response should look similar to this:
 ```
 
 The access token is a JWT(Json Web Token) token, that consists of 3 parts seperated by an '.':
-* The first is the base64encoded header that contains the metadata for the signing algorithm and the token type.. Decoded it looks like this: 
+* The first part is the base64encoded header that contains the metadata for the signing algorithm and the token type.. Decoded it looks like this: 
 ```JSON
 {
     "alg":"RS256",
@@ -131,7 +131,7 @@ The access token is a JWT(Json Web Token) token, that consists of 3 parts sepera
     "typ":"JWT"
 }
 ```
-* The second is the base64encoded payload that contains all the required information about the client or user. Decoded it looks like this: 
+* The second part is the base64encoded payload that contains all the required information about the client or user. Decoded it looks like this: 
 ```JSON
 {
   "nbf": 1511259672,
@@ -147,13 +147,13 @@ The access token is a JWT(Json Web Token) token, that consists of 3 parts sepera
   ]
 }
 ```
-* The third and last is the signature. It is used to verify that the payload of the token is correct and that it orginates from the correct server.
+* The third and last part is the signature. It is used to verify that the payload of the token is correct and that it originates from the correct server.
 
 If you want to decoded your own tokens, you can go to https://jwt.io/ to decode it.
 
 ## Exercise 1.3: Modify the Transaction Api use access token authentication
 
-In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, IdentityServer4.AccessTokenValidation. It is also possible to use the regular ASP.NET Core 2.0 Microsoft.AspNetCore.Authentication.JwtBearer package. The difference between them is that IdentityServer4.AccessTokenValidation exposes more options and the api surface aligns more with the tokens that IdentityServer4 generates. The IdentityServer4.AccessTokenValidation even builds on Microsofts package.
+In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, `IdentityServer4.AccessTokenValidation`. It is also possible to use the regular ASP.NET Core 2.0 `Microsoft.AspNetCore.Authentication.JwtBearer` package. The difference between them is that `IdentityServer4.AccessTokenValidation` exposes more options and the api surface aligns more with the tokens that IdentityServer4 generates. The `IdentityServer4.AccessTokenValidation` even builds on Microsofts package.
 
 ### Step 1
 
@@ -196,7 +196,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 }
 ```
 
-It is important that the `app.UseAuthentication();` comes before the `app.UseMvc();`. It is in the `app.UseAuthentication();` part of the pipeline that the token is validated and transformed into a UserPrincipal.
+It is important that the `app.UseAuthentication();` comes before the `app.UseMvc();`. It is in the `app.UseAuthentication();` part of the pipeline that the token is validated and transformed into a authenticated User in the HttpContext.
 
 ### Step4
 
@@ -233,5 +233,9 @@ If you have run the setup part of the workshop and have created a card, you shou
     "balance": -80
 }
 ```
+
+## Recap
+
+We now have a working client credentials flow for our Api using IdentityServer4. 
 
 
