@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Bank.Cards.Services\Bank.Cards.Services.csproj" />
   </ItemGroup>
 
