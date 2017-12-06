@@ -1,6 +1,6 @@
-# Exercise 1: Client credentials for the transaction api
+# Exercise 1: Client credentials for the Apis
 
-In this exercise we are going to secure the transaction api. The requests are coming from a cardterminal client, which means that no user is involved. The client credentials flow is best suited for this purpose. (https://www.oauth.com/oauth2-servers/access-tokens/client-credentials/)
+In this exercise we are going to secure the two apis. For the Transaction api, the requests are coming from a cardterminal client, which means that no user is involved. The client credentials flow is best suited for this purpose. (https://www.oauth.com/oauth2-servers/access-tokens/client-credentials/)
 
 ## Exercise 1.1: Setup IdentityServer4
 
@@ -39,12 +39,12 @@ If you try to run the application now, you will get an exception:
 No storage mechanism for clients specified. Use the 'AddInMemoryClients' extension method to register a development version.
 ```
 
-This means you haven't configured an store for clients. A client is application/service that you allow to request access tokens from the IdentityServer. It is very similar to a user, but without the identification information. In this exercise we will use the InMemory version to get started:
+This means you haven't configured an store for clients. A client is an access configuration for your applications. It is where you configure how an user or client can request access tokens from the IdentityServer. In this exercise we will use the InMemory version to get started:
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddIdentityServer()
-            .AddInMemoryClients(Enumerable.Empty<Client>()))
+            .AddInMemoryClients(Enumerable.Empty<Client>())
             .AddInMemoryApiResources(Enumerable.Empty<ApiResource>());
 }
 ```
@@ -53,20 +53,21 @@ We also added an InMemory store for your api resources. An api resource is a spe
 ### Step 4
 
 Now we have configured an empty instance of IdentityServer4. To verify that it works, start the project and navigate to:
+
 http://localhost:5000/.well-known/openid-configuration
 
 This is the discovery endpoint for IdentityServer. The discovery endpoint can be used to retrieve metadata about your IdentityServer - it returns information like the issuer name, key material, supported scopes etc.
 
 ## Exercise 1.2: Configure IdentityServer4 to accept client credentials
 
-Now we are going to configure the our identity server to accept clients with client credentials.
+Now we are going to configure our identity server to accept clients with client credentials for our Transaction api.
 
 ### Step 1
 
 To be able to connect to the transaction api with client credentials, we need to:
 * Add an Api Resource for the transaction api.
 * Add an "card terminal" client with a client secret that has access to the Api Resource. We also limit the client to only use client credentials grant type.
-* Add an AddDeveloperSigningCredential() configuration. This is only used during development and generates an RSA key file in your project. This key is used to sign the access tokens that IdentityServer returns. For a production setup this must be replaced with a valid RSA certificate.
+* Add an AddDeveloperSigningCredential() configuration. This is only used during development and generates an RSA key file in your project. This key is used to sign the access tokens that IdentityServer returns. For a production setup this must be replaced with a valid certificate.
 
 Replace the service configuration for identity server with this:
 ```C#
@@ -153,7 +154,7 @@ If you want to decoded your own tokens, you can go to https://jwt.io/ to decode 
 
 ## Exercise 1.3: Modify the Transaction Api use access token authentication
 
-In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, `IdentityServer4.AccessTokenValidation`. It is also possible to use the regular ASP.NET Core 2.0 `Microsoft.AspNetCore.Authentication.JwtBearer` package. The difference between them is that `IdentityServer4.AccessTokenValidation` exposes more options and the api surface aligns more with the tokens that IdentityServer4 generates. The `IdentityServer4.AccessTokenValidation` even builds on Microsofts package.
+In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, `IdentityServer4.AccessTokenValidation`. It is also possible to use the regular ASP.NET Core 2.0 `Microsoft.AspNetCore.Authentication.JwtBearer` package. The difference between them is that `IdentityServer4.AccessTokenValidation` exposes more options and the terminology aligns with the tokens that IdentityServer4 generates. The `IdentityServer4.AccessTokenValidation` even builds on Microsofts package.
 
 ### Step 1
 
@@ -165,12 +166,12 @@ dotnet add package IdentityServer4.AccessTokenValidation
 
 ### Step 2 
 
-Configure the api to accept tokens form our identity server. Add the following code in ConfigureServices in Startup.cs: 
+Configure the Transaction api to accept tokens from our identity server. Add the following code in ConfigureServices in Startup.cs: 
 
 ```C#
 ...
-services.AddAuthentication("Bearer")
-        .AddIdentityServerAuthentication(options =>
+services.AddAuthentication(defaultScheme: "Bearer")
+        .AddIdentityServerAuthentication(authenticationScheme: "Bearer", configureOptions: options =>
         {
             options.Authority = "http://localhost:5000";
             options.RequireHttpsMetadata = false;
@@ -178,6 +179,13 @@ services.AddAuthentication("Bearer")
         });
 ...
 ``` 
+
+The `AddAuthentication(defaultScheme: "Bearer")` part of this code add the services needed for authentication and set the default scheme to    `"Bearer"`. This means that every time an request is challenged, it will verify that the request is authenticated with the scheme `"Bearer"`. 
+
+The options specified here is:
+* Authority: This is the authority that our application thrusts. This endpoint is used to fetch the RSA public key from our IdentityServer, which is used to verify the token. The `iss` claim in the access token must also be the same as Authority.
+* RequireHttpsMetadata: Must be set to `false` during development to be able fetch the RSA public key information over http.
+* ApiName: The name of the ApiResource specified in your identity server. It is the same as Scope. The access token must include the scope `cardtransactionapi` so that the Transaction api will accept the token.
 
 ### Step 3
 
@@ -196,11 +204,11 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 }
 ```
 
-It is important that the `app.UseAuthentication();` comes before the `app.UseMvc();`. It is in the `app.UseAuthentication();` part of the pipeline that the token is validated and transformed into a authenticated User in the HttpContext.
+It is important that the `app.UseAuthentication();` comes before the `app.UseMvc();`. It´s in the `app.UseAuthentication();` part of the pipeline that the token is validated and transformed into an authenticated User in the HttpContext.
 
 ### Step 4
 
-Now we need to implement authorization for Api. To do that we add the `[Authorize]` attribute to our CardPurchaseController.
+Now we need to implement authorization for the Api. To do that we add the `[Authorize]` attribute to our CardPurchaseController. This will challenge all requests that targets any of the routes in the controller. It will challenge using the default scheme `"Bearer"`, configured in Step 2.
 ```C#
 ...
     [Route("cards")]
@@ -211,6 +219,8 @@ Now we need to implement authorization for Api. To do that we add the `[Authoriz
         private readonly PanHashService _panHashService;
 ...
 ```
+
+It is possible to specify which schemes we want to challenge here using `[Authorize(AuthenticationSchemes = "Bearer,Scheme2")]` as an example. This opens up possiblities for finer access control based on how users and clients is authenticated. As an example, you show a part of your application if the user is authenticated with a `Facebook` scheme, and the prompt the user to register so they can login with a scheme to have access to all features.
 
 ### Step 5
 
@@ -234,8 +244,20 @@ If you have run the setup part of the workshop and have created a card, you shou
 }
 ```
 
+## Exercise 1.4: Add authentication to the Admin api
+
+Now we need to do the same thing to the admin api. Use the same procedure as in the previous exercises. In the postman collection there is a predefined set of requests that uses the credentials: 
+
+```HTTP
+POST /connect/token HTTP/1.1
+Host: localhost:5000
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id=adminclient&client_secret=secret
+```
+
 ## Recap
 
-We now have a working client credentials flow for our Api using IdentityServer4. 
+We now have a working client credentials flow for our Apis using IdentityServer4. 
 
 
