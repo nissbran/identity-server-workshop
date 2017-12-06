@@ -12,9 +12,9 @@ The purpose of this workshop is an introduction to IdentityServer4 and how to ap
 
 We have an business application handles transactions for cards. This application consists of a number of services:
 * A Transaction api -- When an customer uses his or her card in a store the transaction api is called. 
-* A Admin api -- Used by the admin portal and the customer portal. 
-* A Admin portal -- Allow card admins to create cards.
-* A Customer portal -- Allows card customers to see their balance and transactions
+* A Admin api -- Used by the admin web. 
+* A Admin web -- Allow card admins to create cards.
+* A Statistics web -- Allows card admins to se statistics for card purchases
 
 ## Problem description
 
@@ -24,23 +24,16 @@ None of the applications in the business description contain any authentication 
 
 ### Start an instance of EventStore. 
 
-Go to the unzipped catalog of EventStore. Click the EventStore.ClusterNode.exe file to start an instance of EventStore.
+Open an cmd prompt and go to the unzipped catalog of EventStore. Run the following command to start an instance of EventStore:
+```
+EventStore.ClusterNode.exe -RunProjections All -StartStandardProjections
+```
 
 ### Test the solution
 
 1. Open the solution file for the workshop. 
 2. Compile and start the admin api. 
-3. Import the workshop postman collection to postman
+3. Import the postman collection to postman
 4. Try creating some accounts and cards using postman. 
-
-### Configure the IdentityServer4
-
-
-
-## Step 3: Setup client credentials for the transaction api
-
-The first we have to do is to secure the transaction api. The requests are coming from a cardterminal client, which means that no user is involved. The client credentials flow is best suited for this purpose.
-
-### 
 
 
