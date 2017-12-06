@@ -163,7 +163,7 @@ Install the IdentityServer4.AccessTokenValidation nuget package in the Bank.Card
 dotnet add package IdentityServer4.AccessTokenValidation
 ```
 
-### Step2 
+### Step 2 
 
 Configure the api to accept tokens form our identity server. Add the following code in ConfigureServices in Startup.cs: 
 
@@ -179,7 +179,7 @@ services.AddAuthentication("Bearer")
 ...
 ``` 
 
-### Step3
+### Step 3
 
 Add authentication to the pipeline:
 ```C#
@@ -198,7 +198,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 
 It is important that the `app.UseAuthentication();` comes before the `app.UseMvc();`. It is in the `app.UseAuthentication();` part of the pipeline that the token is validated and transformed into a authenticated User in the HttpContext.
 
-### Step4
+### Step 4
 
 Now we need to implement authorization for Api. To do that we add the `[Authorize]` attribute to our CardPurchaseController.
 ```C#
@@ -212,7 +212,7 @@ Now we need to implement authorization for Api. To do that we add the `[Authoriz
 ...
 ```
 
-### Step5
+### Step 5
 
 Now the Purchase endpoint is secure and you now needs a valid access token to access it. To do that we need to include the access token in each call to the endpoint:
 ```HTTP
