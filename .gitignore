@@ -289,5 +289,3 @@ __pycache__/
 
 .vscode
 .vs
-project.lock.json
-**/wwwroot/lib/
