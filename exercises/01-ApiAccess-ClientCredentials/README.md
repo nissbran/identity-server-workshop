@@ -180,7 +180,7 @@ services.AddAuthentication(defaultScheme: "Bearer")
 ...
 ``` 
 
-The `AddAuthentication(defaultScheme: "Bearer")` part of this code add the services needed for authentication and set the default scheme to    `"Bearer"`. This means that every time an request is challenged, it will verify that the request is authenticated with the scheme `"Bearer"`. 
+The `AddAuthentication(defaultScheme: "Bearer")` part of this code add the services needed for authentication and set the default scheme to `"Bearer"`. This means that every time an request is authorized, it will verify that the request is authenticated with the scheme `"Bearer"`. 
 
 The options specified here is:
 * Authority: This is the authority that our application thrusts. This endpoint is used to fetch the RSA public key from our IdentityServer, which is used to verify the token. The `iss` claim in the access token must also be the same as Authority.
@@ -208,7 +208,7 @@ It is important that the `app.UseAuthentication();` comes before the `app.UseMvc
 
 ### Step 4
 
-Now we need to implement authorization for the Api. To do that we add the `[Authorize]` attribute to our CardPurchaseController. This will challenge all requests that targets any of the routes in the controller. It will challenge using the default scheme `"Bearer"`, configured in Step 2.
+Now we need to implement authorization for the Api. To do that we add the `[Authorize]` attribute to our CardPurchaseController. This will authorize all requests that targets any of the routes in the controller. If a request is authenticated with the default scheme `"Bearer"` it will be accepted. 
 ```C#
 ...
     [Route("cards")]
@@ -220,7 +220,7 @@ Now we need to implement authorization for the Api. To do that we add the `[Auth
 ...
 ```
 
-It is possible to specify which schemes we want to challenge here using `[Authorize(AuthenticationSchemes = "Bearer,Scheme2")]` as an example. This opens up possiblities for finer access control based on how users and clients is authenticated. As an example, you show a part of your application if the user is authenticated with a `Facebook` scheme, and the prompt the user to register so they can login with a scheme to have access to all features.
+It is possible to specify which schemes we want to authorize here using `[Authorize(AuthenticationSchemes = "Bearer,Scheme2")]` as an example. This opens up possiblities for finer access control based on how users and clients is authenticated. As an example, you show a part of your application if the user is authenticated with a `Facebook` scheme, and the prompt the user to register so they can login with a scheme to have access to all features.
 
 ### Step 5
 
