@@ -1,0 +1,17 @@
+﻿@model Bank.Cards.Statistics.Web.Models.StatisticsViewModel
+@{
+    ViewData["Title"] = "Statistics";
+}
+
+<h2>Statistics</h2>
+
+@foreach (var account in Model.Accounts)
+{
+    <h4>Account: @account.AccountId</h4>
+    <div>
+        Balance: @account.Balance;
+    </div>
+    <div>
+        NumberOfCards: @account.NumberOfCards
+    </div>
+}

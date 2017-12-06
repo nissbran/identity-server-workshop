@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Create account";
+}
+
+<h2>Create account</h2>
+@using (Html.BeginForm("CreateAccount", "Account", FormMethod.Post))
+{
+    <label for="IssuerId">IssuerId</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="IssuerId" name="IssuerId">
+    </div>
+    <label for="CreditLimit">Credit limit</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="CreditLimit" name="CreditLimit">
+    </div>
+
+    <input class="btn" type="submit" value="Create account">
+}
