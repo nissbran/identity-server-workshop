@@ -111,7 +111,7 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=client_credentials&client_id=cardterminal1&client_secret=secret1
 ```
 
-You create the request yourself or use the "Get transaction api client credentials token" request in the postman collection supplied with the workshop(link).
+You create the request yourself or use the "Get transaction api client credentials token" request in the [Postman collection](../../postman/IdentityServer.postman_collection.json) supplied with the workshop.
 
 The response should look similar to this:
 
@@ -246,7 +246,7 @@ If you have run the setup part of the workshop and have created a card, you shou
 
 ## Exercise 1.4: Add authentication to the Admin api
 
-Now we need to do the same thing to the admin api. Use the same procedure as in the previous exercises. In the postman collection there is a predefined set of requests that uses the credentials: 
+Now we need to do the same thing to the admin api. Use the same procedure as in the previous exercises. In the [Postman collection](../../postman/IdentityServer.postman_collection.json) there is a predefined set of requests that uses the credentials: 
 
 ```HTTP
 POST /connect/token HTTP/1.1
