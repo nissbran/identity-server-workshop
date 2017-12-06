@@ -4,7 +4,7 @@ In this exercise we are going to add an login page to our identity server. This 
 
 ## Exercise 2.1: Add an UI to identity server
 
-First we need to add a working UI for our identity server. Fortunately for us, the creators of IdentityServer4 have a very good MVC quickstart setup we can use to get started. This is not an production ready UI, its for demo purposes and to use as an template when building your real solution.
+First we need to add a working UI for our identity server. Fortunately for us, the creators of IdentityServer4 have a very good MVC quickstart setup we can use to get started. This is not an production ready UI, it is primarly for demo purposes and to act as an template when building your real solution.
 
 The repo for the quickstart is located here: https://github.com/IdentityServer/IdentityServer4.Quickstart.UI#adding-the-quickstart-ui
 
@@ -20,7 +20,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 
 ### Step 2 
 
-Add MVC services and configure the pipeline:
+Add MVC to your identity server and configure the pipeline:
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
@@ -48,16 +48,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 
 ### Step 3
 
-To verify that we have an UI just navigate to: http://localhost:5000
-
-If you want to configure your own routes instead of the default (`"account/login"`) that exist in the quickstart, it is possible to configure IdentityServer4 during service registration. Example: 
-
-```C#
-services.AddIdentityServer(options =>
-                {
-                    options.UserInteraction.LoginUrl = "myurl/login";
-                })
-``` 
+To verify that we have an UI, compile and start your identity server and navigate to: http://localhost:5000
 
 ## Exercise 2.2: Add Implict flow login for Statistics web  
 
@@ -188,7 +179,7 @@ app.UseMvc(routes =>
         });
 ```
 
-What happens here is that we configure the DefaultScheme to be `"Cookies"`, which is configure with the standard ASP.NET Auth Cookies scheme `.AddCookie("Cookies")`. Then we configure the ChallengeScheme to be `"oidc"`. 
+What happens here is that we set the DefaultScheme to be `"Cookies"`, which is configured with the standard ASP.NET Auth Cookies scheme `.AddCookie("Cookies")`. Then we set the ChallengeScheme to `"oidc"`. 
 * If an user request an MVC route with an `[Authorize]` attribute and the user has an valid cookie for scheme `"Cookies"`, then the user is authenticated and is allowed access
 * If an user request an MVC route with an `[Authorize]` attribute and the user unauthenticated then we challenge the request with the scheme `"oidc"`. This results in that the user is redirected to the standard OpenId connect endpoint on the Authority site (our IdentityServer).
 
@@ -221,6 +212,19 @@ RequireConsent = false,
 ```
 
 If you done everything correct it should now be possible to go between the applications and it will autologin to the other application if you are logged in. Single sign-on implemented :)
+
+## Exercise 2.4: Extend your user with more information
+
+
+
+If you want to configure your own routes instead of the default (`"account/login"`) that exist in the quickstart, it is possible to configure IdentityServer4 during service registration. Example: 
+
+```C#
+services.AddIdentityServer(options =>
+                {
+                    options.UserInteraction.LoginUrl = "myurl/login";
+                })
+``` 
 
 ## Recap
 
