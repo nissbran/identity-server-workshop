@@ -257,6 +257,6 @@ grant_type=client_credentials&client_id=adminclient&client_secret=secret
 
 ## Recap
 
-We now have a working client credentials flow for our Apis using IdentityServer4. 
+We now have a working client credentials flow for our Apis using IdentityServer4. In the next exercise we going to add an signin flow, [here](../02-LoginPage-ImplicitFlow)
 
 

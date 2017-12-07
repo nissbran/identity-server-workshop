@@ -315,7 +315,7 @@ Now we can run and test that we get the issuerid along with the claims. If you h
 
 ## Recap
 
-We have now implemented single sign-on using IdentityServer4 and the OpenId Connect Implict flow. 
+We have now implemented single sign-on using IdentityServer4 and the OpenId Connect Implict flow. In the next exercise we going to modify our application for backend access, [here](../03-BackendApiAccess-HybridFlow)
 
 ## Extra information
 
