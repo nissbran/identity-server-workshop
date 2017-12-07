@@ -215,7 +215,7 @@ If you done everything correct it should now be possible to go between the appli
 
 ## Exercise 2.4: Extend your identity with more information
 
-Now we are going to add more information to our user. Each user in this system is connected to an issuer, so when a user is signing in we want the OpenId Connect id token to contain an issuerId claim. It is not enough to just add the claim to the testuser, we must set up so that it is included in the token.
+Now we are going to add more information to our user. Each user in this system is connected to an issuer, so when a user signin we want the OpenId Connect id token to contain an issuerid claim. It is not enough to just add the claim to the testuser, we must configure it so that it is included in the token.
 
 ### Step 1
 

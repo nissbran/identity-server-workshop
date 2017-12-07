@@ -75,13 +75,13 @@ Update the configuration to the following:
     });
 ```
 
-The big difference here is that we configured `options.ResponseType = "code id_token";`, which means that our application wants both an Authorization Code and an id_token back when the user sign in and accept consent. We also added the client secret and the scope `adminapi`. 
+The big difference here is that we configured `options.ResponseType = "code id_token";`, which means that our application wants both an Authorization Code and an id_token back when the user sign in. We also added the client secret and the scope `adminapi`. 
 
-We also added `options.GetClaimsFromUserInfoEndpoint = true;`, which is needed if we want to get the identity information for the User. When using Hybrid flow, identity server is not adding any user claims to the id_token. Instead we fetch them using the access token from the UserInfo endpoint. The access token is requested by the OpenId Handler from our identity server using the authorization code, which it saves in the Auth Cookie (`options.SaveTokens = true;`).
+We also added `options.GetClaimsFromUserInfoEndpoint = true;`. This is needed if we want to get the identity information for the User. When using Hybrid flow, identity server is not adding any user claims to the id_token. Instead we fetch them using the access token from the UserInfo endpoint. The access token is requested by the OpenId Handler from our identity server using the authorization code, which it then saves in the Auth Cookie (`options.SaveTokens = true;`).
 
 ### Step 2
 
-Now we need to use our access token in our call to the admin backend. In our Admin web project there is an `AdminHttpService` that handles all calls to the backend. It is prepared with an `IHttpContextAccessor` service, so that we can access our token from our HttpContext. Modify the `PostAsync` method:
+Now we need to use our access token in our call to the admin backend. In our Admin web project there is an `AdminHttpService` that handles all calls to the backend. It is prepared with an `IHttpContextAccessor` service, so that we can access our token from the HttpContext. Modify the `PostAsync` method:
 
 ```C#
 var accessToken = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
