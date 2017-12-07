@@ -213,11 +213,118 @@ RequireConsent = false,
 
 If you done everything correct it should now be possible to go between the applications and it will autologin to the other application if you are logged in. Single sign-on implemented :)
 
-## Exercise 2.4: Extend your user with more information
+## Exercise 2.4: Extend your identity with more information
 
+Now we are going to add more information to our user. Each user in this system is connected to an issuer, so when a user is signing in we want the OpenId Connect id token to contain an issuerId claim. It is not enough to just add the claim to the testuser, we must set up so that it is included in the token.
 
+### Step 1
 
-If you want to configure your own routes instead of the default (`"account/login"`) that exist in the quickstart, it is possible to configure IdentityServer4 during service registration. Example: 
+First we add the issuerId claims to the TestUsers.  
+
+For `squeeder1`:
+```C#
+new Claim("issuerid", "1"),
+```
+For `squeeder2`:
+```C#
+new Claim("issuerid", "2"),
+```
+
+### Step 2
+
+With claims registered on the TestUsers, we can now add an new IdentityResource scope `bankidentity`, that contains that `issuerid` claim.
+
+```C#
+public class BankIdentityResource : IdentityResource
+{
+    public BankIdentityResource()
+    {
+        Name = "bankidentity";
+        Description = "Bank information";
+        DisplayName = "Bank information";
+        Required = true;
+        Emphasize = true;
+        UserClaims = new List<string> {"issuerid"};
+    }
+}
+```
+
+There are 2 important properties here, the Name is the scope name and UserClaims is the list of claims that will be included in the id_token if the scope `bankidentity` is requested. The other is used in the constent flow:
+* Required: The scope is required and can´t be left out in the consent page.
+* Emphasize: The scope is set as important in the consent page.
+
+Then we add it as an allowed scope with the statistics web client
+```C#
+...
+new Client
+{
+    ClientId = "statisticsweb",
+    ClientName = "Statistics web",
+    AllowedGrantTypes = GrantTypes.Implicit,
+
+    // where to redirect to after login
+    RedirectUris = {"http://localhost:5003/signin-oidc"},
+
+    // where to redirect to after logout
+    PostLogoutRedirectUris = {"http://localhost:5003/signout-callback-oidc"},
+
+    AllowedScopes = new List<string>
+    {
+        IdentityServerConstants.StandardScopes.OpenId,
+        IdentityServerConstants.StandardScopes.Profile,
+        "bankidentity"
+    }
+}
+...
+.AddInMemoryIdentityResources(new List<IdentityResource>
+                {
+                    new IdentityResources.OpenId(),
+                    new IdentityResources.Profile(),
+                    new BankIdentityResource()
+                })
+...
+```
+
+### Step 4
+
+In the Statistics web, we need to add the scope to the OpenId Connect handler. This is done by adding `bankidentity` to the Scopes collection. When the handler redirects to the authorize endpoint on the identity server, it will also request the scope `bankidentity`, along with the 2 default OpenId scopes.
+
+```C#
+options.SignInScheme = "Cookies";
+                       
+options.Authority = "http://localhost:5000";
+options.RequireHttpsMetadata = false;
+
+options.ClientId = "statisticsweb";
+options.SaveTokens = true;
+
+options.Scope.Add("bankidentity");
+```
+
+### Step 5
+
+To verify that this is working, we can add some code that depends on issuerId. Replace the code in the `Index()` method in the `StatisticsController` with this:
+
+```C#
+var issuerId = User.Claims.First(claim => claim.Type == "issuerid").Value;
+
+var accounts = await _accountStatisticsService.GetAccountSummaryForIssuer(long.Parse(issuerId));
+
+return View(new StatisticsViewModel
+            {
+                Accounts = accounts.Select(summary => new AccountViewModel(summary))
+            });
+```
+
+Now we can run and test that we get the issuerid along with the claims. 
+
+## Recap
+
+We have now implemented single sign-on using IdentityServer4 and the OpenId Connect Implict flow. 
+
+## Extra information
+
+If you want to configure your own routes in identity server instead of the default (`"account/login"`) that exist in the quickstart, it is possible to configure IdentityServer4 during service registration. Example: 
 
 ```C#
 services.AddIdentityServer(options =>
@@ -225,8 +332,3 @@ services.AddIdentityServer(options =>
                     options.UserInteraction.LoginUrl = "myurl/login";
                 })
 ``` 
-
-## Recap
-
-We have now implemented single sign-on using IdentityServer4 and the OpenId Connect Implict flow. 
-
