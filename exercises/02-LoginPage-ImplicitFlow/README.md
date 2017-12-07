@@ -33,7 +33,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
     if (env.IsDevelopment())
     {
-        app.UseDeveloperExceptionPage();
+        app.UseDeveloperExceptionPage(); 
     }
 
     app.UseStaticFiles();
@@ -79,7 +79,7 @@ new Client
 
 ### Step 2
 
-In exercise 1 we used the ApiResources concept that uses scopes to define an application. Now when have an user with an identity instead of a defined Api. OpenID Connect uses scopes to defined identity data. We are going to add the two standard OpenId Connect scopes, which are defined in the OpenId specification.
+In exercise 1 we used the ApiResources concept that uses scopes to define an application. Now when have an user with an identity instead of a defined Api. OpenID Connect uses scopes to define identity data. We are going to add the two standard OpenId Connect scopes, which are defined in the OpenId Connect specification.
 
 ```C#
 services.AddIdentityServer()
@@ -94,7 +94,7 @@ services.AddIdentityServer()
 
 ### Step 3
 
-Next we need to introduce the concept of users. For demo and development purposes IdentityServer has the concept of TestUser. We are going to add two users: 
+Next we introduce the concept of users. For demo and development purposes IdentityServer has the concept of TestUser. We are going to use TestUsers in this workshop, so we add two users: 
 
 ```C#
 services.AddIdentityServer()
@@ -129,7 +129,7 @@ services.AddIdentityServer()
             });
 ```
 
-TestUsers should not be used in production. If you want user control you should replace the TestUserStore in the AccountController with your own implementation. There is an tutorial in the IdentityServer4 docs if you want to use ASP.NET Identity: https://identityserver4.readthedocs.io/en/release/quickstarts/6_aspnet_identity.html
+TestUsers should not be used in production. If you want user control, you should replace the TestUserStore in the AccountController with your own implementation. There is an tutorial in the IdentityServer4 docs if you want to use ASP.NET Identity: https://identityserver4.readthedocs.io/en/release/quickstarts/6_aspnet_identity.html
 
 ### Step 4
 
@@ -167,24 +167,26 @@ services.AddAuthentication(options =>
 
 We also need to add authentication in the pipeline:
 ```C#
+app.UseStaticFiles();
+
 app.UseAuthentication();
 
-app.UseMvc(routes =>
-        {
-            routes.MapRoute(
-                name: "default",
-                template: "{controller=Home}/{action=Index}/{id?}");
-        });
+app.UseMvcWithDefaultRoute();
 ```
 
-What happens here is that we set the DefaultScheme to be `"Cookies"`, which is configured with the standard ASP.NET Auth Cookies scheme `.AddCookie("Cookies")`. Then we set the ChallengeScheme to `"oidc"`. 
-* If an user request an MVC route with an `[Authorize]` attribute and the user has an valid cookie for scheme `"Cookies"`, then the user is authenticated and is allowed access
-* If an user request an MVC route with an `[Authorize]` attribute and the user unauthenticated then we challenge the request with the scheme `"oidc"`. This results in that the user is redirected to the standard OpenId connect endpoint on the Authority site (our IdentityServer).
+What happens here is that we set the DefaultScheme to be `Cookies`, which is configured with the standard ASP.NET Auth Cookies scheme `.AddCookie("Cookies")`. Then we set the ChallengeScheme to `oidc`. 
+* If an user request an MVC route with an `[Authorize]` attribute and the user has an valid cookie for scheme `Cookies`, then the user is authenticated and is allowed access
+* If an user request an MVC route with an `[Authorize]` attribute and the user unauthenticated, then we challenge the request with the scheme `oidc`. This results in that the user is redirected to the authorize endpoint on the Authority site (our IdentityServer). When user comes back and the id_token is verified, then user is signed in to the authentication scheme `Cookies`.
 
 ### Step 5
 
 No we can test the login page by adding a `[Authorize]` attribute to the `StatisticsController` and start both the Statistics web and the identity server.
-If we go to http://localhost:5003/statistics, we should now be redirect to the login page. 
+If we go to http://localhost:5003/statistics, we should now be redirect to the login page. Signin with one of the TestUsers. If the signin was successfull you should now se a consent page. Here can the user select how much information he/her wish to grant to the site. 
+
+It is also possible to turn off consent on the client configuration:
+```C#
+RequireConsent = false,
+```
 
 ### Step 6
 
@@ -198,16 +200,11 @@ public async Task Logout()
 }
 ```
 
-Here we sigout of Auth Cookie scheme and the triggers the signout on the OpenId Connect Handler. This will redirect the browser so that the user signs out of the identity server aswell.
+Here we signout of Auth Cookie scheme and the triggers the signout on the OpenId Connect Handler. This will redirect the browser so that the user signs out of the identity server aswell.
 
 ## Exercise 2.3: Add Implict flow to Admin web
 
 Now we should have enough to information to add the same implementation to the Admin web. Make sure that you set the correct urls in the identity server configuration. Admin web is at http://localhost:5004/.
-
-It is also possible to turn off consent with on the client configuration:
-```C#
-RequireConsent = false,
-```
 
 If you done everything correct it should now be possible to go between the applications and it will autologin to the other application if you are logged in. Single sign-on implemented :)
 
@@ -314,7 +311,7 @@ return View(new StatisticsViewModel
             });
 ```
 
-Now we can run and test that we get the issuerid along with the claims. 
+Now we can run and test that we get the issuerid along with the claims. If you have run the postman collection request without any modification you should not se any information if you are signed in as `squeeder1`, because all the accounts have issuerid 2. Sign as `squeeder2` to se the statistics.
 
 ## Recap
 
