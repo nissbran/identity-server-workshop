@@ -215,8 +215,7 @@ Now we need to implement authorization for the Api. To do that we add the `[Auth
     [Authorize]
     public class CardPurchaseController : Controller
     {
-        private readonly ICardDomainRepository _cardDomainRepository;
-        private readonly PanHashService _panHashService;
+        private readonly CreditCardPurchaseService _creditCardPurchaseService;
 ...
 ```
 
