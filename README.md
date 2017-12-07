@@ -34,6 +34,10 @@ EventStore.ClusterNode.exe -RunProjections All -StartStandardProjections
 1. Open the solution file for the workshop. 
 2. Compile and start the admin api. 
 3. Import the [Postman collection](postman/IdentityServer.postman_collection.json) to postman
-4. Try creating some accounts and cards using postman. These request are in the Preparations folder in the collection.
+4. Try creating some accounts and cards using postman. These request are in the Preparations folder in the Postman collection.
+
+### To the exercises
+
+When everything is working, you can move on to the [First exercise](exercises/01-ApiAccess-ClientCredentials)
 
 
