@@ -255,6 +255,21 @@ Content-Type: application/x-www-form-urlencoded
 grant_type=client_credentials&client_id=adminclient&client_secret=secret
 ```
 
+Since the admin api have several controllers that requires authorization we can add an filter with an authorization policy to our MVC config, so that all the routes require an valid access token.
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvc(config =>
+    {
+        var policy = new AuthorizationPolicyBuilder()
+                         .RequireAuthenticatedUser()
+                         .Build();
+                         
+        config.Filters.Add(new AuthorizeFilter(policy));
+    })
+}
+```
+
 ## Recap
 
 We now have a working client credentials flow for our Apis using IdentityServer4. In the next exercise we going to add an signin flow, [here](../02-LoginPage-ImplicitFlow)
