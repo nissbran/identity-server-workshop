@@ -105,25 +105,25 @@ services.AddIdentityServer()
                 new TestUser
                 {
                     SubjectId = "1",
-                    Username = "squeeder1",
+                    Username = "user1",
                     Password = "password",
 
                     Claims = new[]
                     {
-                        new Claim("name", "Squeed1"),
-                        new Claim("website", "http://www.squeed.com"),
+                        new Claim("name", "User1"),
+                        new Claim("website", "http://www.eventstore.org"),
                     }
                 },
                 new TestUser
                 {
                     SubjectId = "2",
-                    Username = "squeeder2",
+                    Username = "user2",
                     Password = "password",
 
                     Claims = new[]
                     {
-                        new Claim("name", "Squeed2"),
-                        new Claim("website", "http://www.squeed.com"),
+                        new Claim("name", "User2"),
+                        new Claim("website", "http://www.eventstore.org"),
                     }
                 }
             });
@@ -204,9 +204,12 @@ Here we signout of Auth Cookie scheme and the triggers the signout on the OpenId
 
 ## Exercise 2.3: Add Implict flow to Admin web
 
-Now we should have enough to information to add the same implementation to the Admin web. Make sure that you set the correct urls in the identity server configuration. Admin web is at http://localhost:5004/.
+Now we should have enough to information to add the same implementation to the Admin web. Make sure that you set the correct urls in the identity server configuration. Admin web is at http://localhost:5004/. One important detail to be wary of is the `Cookies` signin scheme. Because we have 2 web apps with the "domain" localhost, they will signout each other if the same scheme name is used. So the signin scheme must have another name in the admin web, like `Cookies2`.
 
 If you done everything correct it should now be possible to go between the applications and it will autologin to the other application if you are logged in. Single sign-on implemented :)
+
+To implement an single sign-out is a bit harder and out of scope for this workshop, but this sample is a good starting point:
+https://github.com/IdentityServer/IdentityServer4.Samples/tree/release/Clients/src/MvcHybridBackChannel
 
 ## Exercise 2.4: Extend your identity with more information
 
@@ -216,11 +219,11 @@ Now we are going to add more information to our user. Each user in this system i
 
 First we add the issuerId claims to the TestUsers.  
 
-For `squeeder1`:
+For `user1`:
 ```C#
 new Claim("issuerid", "1"),
 ```
-For `squeeder2`:
+For `user2`:
 ```C#
 new Claim("issuerid", "2"),
 ```
@@ -311,7 +314,7 @@ return View(new StatisticsViewModel
             });
 ```
 
-Now we can run and test that we get the issuerid along with the claims. If you have run the postman collection request without any modification you should not se any information if you are signed in as `squeeder1`, because all the accounts have issuerid 2. Sign as `squeeder2` to se the statistics.
+Now we can run and test that we get the issuerid along with the claims. If you have run the postman collection request without any modification you should not se any information if you are signed in as `user1`, because all the accounts have issuerid 2. Sign as `user2` to se the statistics.
 
 ## Recap
 
