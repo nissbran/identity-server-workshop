@@ -4,7 +4,7 @@ In this exercise we are going to secure the two apis. For the Transaction api, t
 
 ## Exercise 1.1: Setup IdentityServer4
 
-The first we have to do is to setup IdentityServer4. In the workshop solution you will find a prepared ASP.NET Core 2.0 project (Bank.Cards.IdentityServer). This is the part of the application where most of the work will be done.
+The first we have to do is to setup IdentityServer4. In the workshop solution you will find a prepared ASP.NET Core 2.1 project (Bank.Cards.IdentityServer). This is the part of the application where most of the work will be done.
 
 ### Step 1
 
@@ -16,7 +16,7 @@ dotnet add package IdentityServer4
 
 ### Step 2
 
-To get IdentityServer4 up and running we must register its services to the ServiceCollection in ASP.NET Core 2.0.
+To get IdentityServer4 up and running we must register its services to the ServiceCollection in ASP.NET Core 2.1.
 This is done by using the supplied ServiceCollection extension:
 ```C#
 public void ConfigureServices(IServiceCollection services)
@@ -154,7 +154,7 @@ If you want to decoded your own tokens, you can go to https://jwt.io/ to decode 
 
 ## Exercise 1.3: Modify the Transaction Api use access token authentication
 
-In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, `IdentityServer4.AccessTokenValidation`. It is also possible to use the regular ASP.NET Core 2.0 `Microsoft.AspNetCore.Authentication.JwtBearer` package. The difference between them is that `IdentityServer4.AccessTokenValidation` exposes more options and the terminology aligns with the tokens that IdentityServer4 generates. The `IdentityServer4.AccessTokenValidation` even builds on Microsofts package.
+In this part we will add authentication to the transaction api. We are going to use the nuget package supplied by the IdentityServer4 team, `IdentityServer4.AccessTokenValidation`. It is also possible to use the regular ASP.NET Core 2.1 `Microsoft.AspNetCore.Authentication.JwtBearer` package. The difference between them is that `IdentityServer4.AccessTokenValidation` exposes more options and the terminology aligns with the tokens that IdentityServer4 generates. The `IdentityServer4.AccessTokenValidation` even builds on Microsofts package.
 
 ### Step 1
 
@@ -185,7 +185,7 @@ The `AddAuthentication(defaultScheme: "Bearer")` part of this code add the servi
 The options specified here is:
 * Authority: This is the authority that our application thrusts. This endpoint is used to fetch the RSA public key from our IdentityServer, which is used to verify the token. The `iss` claim in the access token must also be the same as Authority.
 * RequireHttpsMetadata: Must be set to `false` during development to be able fetch the RSA public key information over http.
-* ApiName: The name of the ApiResource specified in your identity server. It is the same as Scope. The access token must include the scope `cardtransactionapi` so that the Transaction api will accept the token.
+* ApiName: The name of the ApiResource specified in your identity server. It is the same as Audience in `Microsoft.AspNetCore.Authentication.JwtBearer`. The access token must include the aud `cardtransactionapi` so that the Transaction api will accept the token.
 
 ### Step 3
 
