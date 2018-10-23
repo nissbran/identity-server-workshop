@@ -2,10 +2,12 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Models;
     using Services.Statistics;
     
+    [Authorize]
     public class StatisticsController : Controller
     {
         private readonly GetAccountStatisticsService _accountStatisticsService;
