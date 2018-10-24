@@ -5,8 +5,8 @@ The purpose of this workshop is an introduction to IdentityServer4 and how to ap
 ## Prerequisites
 * Visual Studio 2017 Update 15.4
 * Postman (https://www.getpostman.com/)
-* .NET Core SDK 2.0 (https://www.microsoft.com/net/download/windows)
-* EventStore 4 (https://eventstore.org/downloads/EventStore-OSS-Win-v4.0.3.zip)
+* .NET Core SDK 2.1 (https://www.microsoft.com/net/download/windows)
+* EventStore 4 (https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.1-hotfix1.zip)
 
 ## Business description
 
@@ -27,6 +27,11 @@ None of the applications in the business description contain any authentication 
 Open an cmd prompt and go to the unzipped catalog of EventStore. Run the following command to start an instance of EventStore:
 ```
 EventStore.ClusterNode.exe -RunProjections All -StartStandardProjections
+```
+
+Or, if you have docker and docker-compose installed you can run:
+```
+docker-compose up
 ```
 
 ### Test the solution

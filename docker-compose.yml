@@ -1,0 +1,25 @@
+version: '3'
+services:
+  eventstore:
+    image: eventstore/eventstore:latest
+    container_name: card_eventstore
+    environment:
+      - EVENTSTORE_EXT_IP_ADVERTISE_AS=127.0.0.1
+      - EVENTSTORE_EXT_HTTP_PREFIXES=http://*:2113/
+      - EVENTSTORE_RUN_PROJECTIONS=All
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=True
+    ports:
+     - 1113:1113
+     - 2113:2113
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:2113/stats || exit 1"]
+      interval: 5s
+      timeout: 2s
+    networks: 
+      cardnetwork:
+        aliases: 
+          - eventstore
+networks:
+  cardnetwork:
+    driver: bridge
