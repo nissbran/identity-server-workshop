@@ -1,6 +1,5 @@
 ﻿namespace Bank.Cards.Statistics.Web
 {
-    using System.IdentityModel.Tokens.Jwt;
     using Configuration;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -18,25 +17,6 @@
         
         public void ConfigureServices(IServiceCollection services)
         {
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-            
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = "Cookies";
-                    options.DefaultChallengeScheme = "oidc";
-                })
-                .AddCookie("Cookies")
-                .AddOpenIdConnect("oidc", options =>
-                {
-                    options.SignInScheme = "Cookies";
-            
-                    options.Authority = "http://localhost:5000";
-                    options.RequireHttpsMetadata = false;
-
-                    options.ClientId = "statisticsweb";
-                    options.SaveTokens = true;
-                });
-            
             services.AddMvc();
 
             services.AddApplicationServices();
@@ -54,8 +34,6 @@
             }
 
             app.UseStaticFiles();
-            
-            app.UseAuthentication();
 
             app.UseMvcWithDefaultRoute();
         }
