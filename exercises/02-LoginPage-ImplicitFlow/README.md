@@ -18,6 +18,12 @@ Open an powershell terminal and navigate to the root of the Bank.Cards.IdentityS
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/IdentityServer/IdentityServer4.Quickstart.UI/release/get.ps1'))
 ```
 
+Or using bash one-liner on macOS or Linux:
+
+```bash
+curl -L https://raw.githubusercontent.com/IdentityServer/IdentityServer4.Quickstart.UI/release/get.sh | bash
+```
+
 ### Step 2 
 
 Add MVC to your identity server and configure the pipeline:
