@@ -8,6 +8,7 @@
         public static void AddApplicationServices(this IServiceCollection services)
         {
             services.AddSingleton<AdminHttpService>();
+            services.AddHttpContextAccessor();
         }
     }
 }
