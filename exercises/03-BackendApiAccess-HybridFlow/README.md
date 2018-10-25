@@ -75,9 +75,11 @@ Update the configuration to the following:
     });
 ```
 
-The big difference here is that we configured `options.ResponseType = "code id_token";`, which means that our application wants both an Authorization Code and an id_token back when the user sign in. We also added the client secret and the scope `adminapi`. 
+The big difference here is that we configured `options.ResponseType = "code id_token";`, which means that our application wants both an Authorization Code and an Id Token back when the user sign in. We also added the client secret and the scope `adminapi`. This will configure the OpenIdConnect handler to request the scope for the Admin Api.
 
-We also added `options.GetClaimsFromUserInfoEndpoint = true;`. This is needed if we want to get the identity information for the User. When using Hybrid flow, identity server is not adding any user claims to the id_token. Instead we fetch them using the access token from the UserInfo endpoint. The access token is requested by the OpenId Handler from our identity server using the authorization code, which it then saves in the Auth Cookie (`options.SaveTokens = true;`).
+We also added `options.GetClaimsFromUserInfoEndpoint = true;`. This is needed if we want to get the identity information for the User. When using Hybrid flow, identity server is not adding any user claims to the Id Token. Instead we fetch them using the access token from the UserInfo endpoint. The access token is requested by the OpenId Handler from our identity server using the authorization code, which it then saves in the Auth Cookie (`options.SaveTokens = true;`).
+
+It is also possible to configure IdentityServer4 to always send the user claims in the Id Token by adding the `AlwaysIncludeUserClaimsInIdToken = true` to the client configuration.
 
 ### Step 2
 
